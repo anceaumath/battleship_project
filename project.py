@@ -32,7 +32,7 @@ def clear():
     else:
         _ = system('clear')
 
-FAST = True
+FAST = False
 ALPHABET = list(string.ascii_uppercase)
 
 def define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers):
@@ -159,10 +159,68 @@ def take_suggestion(boat, board, number_of_columns, number_of_rows):
             choice = get_input(f"Impossible, admiral. Please choose one of these two options: {string}")
     return [bow, choice]
 
-def place_boat(boat, board, number_of_columns, number_of_rows, boat_tag):
-    print('------------------------------------------------------------------------------------------------')
-    print(pandas.DataFrame(board))
-    placement = take_suggestion(boat, board, number_of_columns, number_of_rows)
+def computer_position(boat, board, number_of_columns, number_of_rows):
+    done = False
+    while done == False:
+        try:
+            spaces = []
+            for i in range(number_of_rows):
+                for n in range(number_of_columns):
+                    spaces.append([ALPHABET[i], n + 1])
+            length = boats[boat]['size'] - 1
+            point = random.sample(spaces, 1)[0]
+            spaces.remove(point)
+            letternumber = ALPHABET.index(point[0])
+            letter = point[0]
+            number = point[1]
+            looper = True
+            options = []
+            while looper == True:
+                try:
+                    if not board[number][letter] == []:
+                        point = random.sample(spaces, 1)[0]
+                        spaces.remove(point)
+                        letternumber = ALPHABET.index(point[0]) + 1
+                        letter = point[0]
+                        number = point[1]
+                    else:
+
+                        options.append([letterbynumber(letternumber, letternumber + length, number_of_rows), numberbynumber(number, number, number_of_columns)])
+                        options.append([letterbynumber(letternumber, letternumber - length, number_of_rows), numberbynumber(number, number, number_of_columns)])
+                        options.append([letterbynumber(letternumber, letternumber, number_of_rows), numberbynumber(number, number + length, number_of_columns)])
+                        options.append([letterbynumber(letternumber, letternumber, number_of_rows), numberbynumber(number, number - length, number_of_columns)])
+                        result = []
+                        for option in options:
+                            if not False in option:
+                                result.append(option)
+                        if not result == []:
+                            result = suggestionverifier([letter, number], result, board)
+                        if result == []:
+                            point = random.sample(spaces, 1)[0]
+                            spaces.remove(point)
+                            letternumber = ALPHABET.index(point[0])
+                            letter = point[0]
+                            number = point[1]
+                        else:
+                            looper = False
+                except (KeyError, IndexError):
+                    point = random.sample(spaces, 1)[0]
+                    spaces.remove(point)
+                    letternumber = ALPHABET.index(point[0])
+                    letter = point[0]
+                    number = point[1]
+            choice = random.sample(result, 1)[0]
+            done = True
+        except (ValueError):
+            pass
+    return [[letter, number], choice]
+
+def place_boat(boat, board, number_of_columns, number_of_rows, boat_tag, iscomputer):
+    if iscomputer == False:
+        placement = take_suggestion(boat, board, number_of_columns, number_of_rows)
+    else:
+        placement = computer_position(boat, board, number_of_columns, number_of_rows)
+        print(placement)
     letter1 = placement[0][0]
     letternum1 = ALPHABET.index(letter1)
     number1 = placement[0][1]
@@ -217,9 +275,17 @@ def player_boat_placement(player_board, tags, number_of_columns, number_of_rows)
     for tag in tags:
         boat = tag[0]
         tag = tag[1]
-        player_board = place_boat(boat, player_board, number_of_columns, number_of_rows, tag)
+        print('------------------------------------------------------------------------------------------------')
+        print(pandas.DataFrame(player_board))
+        player_board = place_boat(boat, player_board, number_of_columns, number_of_rows, tag, False)
     return player_board
 
+def computer_boat_placement(computer_board, tags, number_of_columns, number_of_rows):
+    for tag in tags:
+        boat = tag[0]
+        tag = tag[1]
+        computer_board = place_boat(boat, computer_board, number_of_columns, number_of_rows, tag, True)
+    return computer_board
 
 board = pandas.DataFrame(data='O', index=range(1,10+1), columns=list('ABCDEFGHIJ'))
 
@@ -256,17 +322,24 @@ def computer_choice(number_of_columns, number_of_rows):
 
 sample_board = {1: {'A': [], 'B': [], 'C': [], 'D': ['c1'], 'E': ['c1'], 'F': ['c1'], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 2: {'A': ['c2'], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 3: {'A': ['c2'], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 4: {'A': ['c2'], 'B': [], 'C': ['p1'], 'D': [], 'E': [], 'F': ['p2'], 'G': ['p2'], 'H': [], 'I': ['b'], 'J': []}, 5: {'A': [], 'B': [], 'C': ['p1'], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': ['p3'], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 8: {'A': [], 'B': ['p3'], 'C': [], 'D': [], 'E': [], 'F': ['s'], 'G': ['s'], 'H': ['s'], 'I': [], 'J': []}, 9: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 10: {'A': [], 'B': ['a'], 'C': ['a'], 'D': ['a'], 'E': ['a'], 'F': ['a'], 'G': [], 'H': [], 'I': [], 'J': []}}
 
+
+
+boats = define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers)
+tags = boats_and_tags(boats)
+
 if FAST == True:
     player_board = {1: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': 'b', 'H': 'b', 'I': 'b', 'J': 'b'}, 2: {'A': [], 'B': 'c2', 'C': 'p2', 'D': 'p2', 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 3: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 4: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': 's', 'H': 's', 'I': 's', 'J': []}, 5: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': 'c1', 'I': 'c1', 'J': 'c1'}, 8: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 9: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': 'p3', 'I': 'p3', 'J': []}, 10: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}}
     computer_board = sample_board
 else:
     player_board = create_board(player_board, number_of_rows, number_of_columns)
-#computer_board = create_board(computer_board, number_of_rows, number_of_columns)
+    player_board = {1: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': 'b', 'H': 'b', 'I': 'b', 'J': 'b'}, 2: {'A': [], 'B': 'c2', 'C': 'p2', 'D': 'p2', 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 3: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 4: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': 's', 'H': 's', 'I': 's', 'J': []}, 5: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': 'c1', 'I': 'c1', 'J': 'c1'}, 8: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 9: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': 'p3', 'I': 'p3', 'J': []}, 10: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}}
+    computer_board = create_board(computer_board, number_of_rows, number_of_columns)
+    #quick_display(player_boat_placement(player_board, tags, number_of_columns, number_of_rows))
+    quick_display(computer_boat_placement(computer_board, tags, number_of_columns, number_of_rows))
+
 player_radar = create_board(player_radar, number_of_rows, number_of_columns)
 player_display = player_board
 
-boats = define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers)
-tags = boats_and_tags(boats)
 player_hitpoints = (set_hitpoints(boats, tags))
 player_trace = trace = list(set(player_hitpoints))
 computer_hitpoints = (set_hitpoints(boats, tags))
