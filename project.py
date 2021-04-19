@@ -332,9 +332,8 @@ if FAST == True:
     computer_board = sample_board
 else:
     player_board = create_board(player_board, number_of_rows, number_of_columns)
-    player_board = {1: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': 'b', 'H': 'b', 'I': 'b', 'J': 'b'}, 2: {'A': [], 'B': 'c2', 'C': 'p2', 'D': 'p2', 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 3: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 4: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': 's', 'H': 's', 'I': 's', 'J': []}, 5: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': 'c1', 'I': 'c1', 'J': 'c1'}, 8: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 9: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': 'p3', 'I': 'p3', 'J': []}, 10: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}}
     computer_board = create_board(computer_board, number_of_rows, number_of_columns)
-    #quick_display(player_boat_placement(player_board, tags, number_of_columns, number_of_rows))
+    quick_display(player_boat_placement(player_board, tags, number_of_columns, number_of_rows))
     quick_display(computer_boat_placement(computer_board, tags, number_of_columns, number_of_rows))
 
 player_radar = create_board(player_radar, number_of_rows, number_of_columns)
