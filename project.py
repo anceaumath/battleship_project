@@ -396,14 +396,16 @@ def computer_result(player_board, player_radar, computer_answer, player_hitpoint
     if player_board[number][letter] == []:
         player_display[number][letter] = 'O'
         print('\nThe enemy missed!\n')
+        hit = False
     else:
         hit = player_board[number][letter]
         player_display[number][letter] = "X"
         player_hitpoints.remove(hit)
+        hit = True
         for tag in tags:
             if hit == tag[1]:
                 print(f"\nThey've hit our {tag[0]}\n")
-    return [player_display, player_hitpoints]
+    return [player_display, player_hitpoints, hit]
 
 def computer_move():
     letter = random.choice('ABCDEFGHIJ')
@@ -507,8 +509,10 @@ def checker(player_hitpoints, computer_hitpoints):
 
 game_on = True
 clear()
+hit_tally = []
+
 while game_on:
-    lasthit = False
+    zoned_in = False
     mid_display(player_radar, player_display)
     player_answer = validated_player_move(player_radar)
     player_reslt = player_result(computer_board, player_radar, player_answer, computer_hitpoints, player_display)
@@ -517,13 +521,22 @@ while game_on:
     computer_hitpoint_checker(computer_hitpoints, tags, computer_trace)
     print('\n ---- it\'s the enemy\'s turn to fire!-----\n ')
     time.sleep(2)
-    computer_answer = validated_computer_move(number_of_columns, number_of_rows, computer_moves, lasthit, computer_board)
+    computer_answer = validated_computer_move(number_of_columns, number_of_rows, computer_moves, zoned_in, computer_board)
     print(computer_answer)
     time.sleep(1)
     #print('Computer plays: ', computer_answer)
     computer_reslt = computer_result(player_board, player_radar, computer_answer, computer_hitpoints, player_display, tags)
     player_display = computer_reslt[0]
     player_hitpoints = computer_reslt[1]
+    lasthit = computer_reslt[2]
+    hit_tally.append(lasthit)
+    if hit_tally[-1] == True
+        zoned_in = True
+    try:
+        if hit_tally[-1] == False and hit_tally[-2] == False hit_tally[-3] == False
+        zoned_in == False
+    except IndexError:
+        pass
     game_on = checker(player_hitpoints, computer_hitpoints)
 
 if player_hitpoints == []:
