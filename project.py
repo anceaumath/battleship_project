@@ -533,7 +533,7 @@ while game_on:
     if hit_tally[-1] == True:
         zoned_in = True
     try:
-        if hit_tally[-1] == False and hit_tally[-2] == False hit_tally[-3] == False:
+        if hit_tally[-1] == False and hit_tally[-2] == False and hit_tally[-3] == False:
         zoned_in == False
     except IndexError:
         pass
