@@ -530,10 +530,10 @@ while game_on:
     player_hitpoints = computer_reslt[1]
     lasthit = computer_reslt[2]
     hit_tally.append(lasthit)
-    if hit_tally[-1] == True
+    if hit_tally[-1] == True:
         zoned_in = True
     try:
-        if hit_tally[-1] == False and hit_tally[-2] == False hit_tally[-3] == False
+        if hit_tally[-1] == False and hit_tally[-2] == False hit_tally[-3] == False:
         zoned_in == False
     except IndexError:
         pass
