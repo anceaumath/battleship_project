@@ -2,6 +2,8 @@ from os import system, name
 import string
 import re
 import pandas
+import random
+import time
 
 number_of_rows = 10 #(max 26)
 number_of_columns = 10
@@ -30,9 +32,8 @@ def clear():
     else:
         _ = system('clear')
 
+FAST = True
 ALPHABET = list(string.ascii_uppercase)
-
-
 
 def define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers):
     boats["aircraft carrier"] = {"size" : 5, "tag" : "a", "number" : number_of_carriers}
@@ -67,43 +68,39 @@ def numberbynumber(number, testnumber, number_of_columns):
         else:
             return testnumber
 
-def suggestionverifier(stern, aftlist, board):
-    sternletternum = ALPHABET.index(stern[0])
+def suggestionverifier(bow, sternlist, board):
+    bowletternum = ALPHABET.index(bow[0])
     result = []
-    for aft in aftlist:
-        aftletternum = ALPHABET.index(aft[0])
-        if not stern[0] == aft[0]:
+    for stern in sternlist:
+        sternletternum = ALPHABET.index(stern[0])
+        if not bow[0] == stern[0]:
             tracker = True
-            if sternletternum > aftletternum:
-                for number in range(aftletternum + 1, sternletternum + 1):
-                    print([ALPHABET[number], stern[1]])
-                    if not board[stern[1]][ALPHABET[number]] == []:
+            if bowletternum > sternletternum:
+                for number in range(sternletternum + 1, bowletternum + 1):
+                    if not board[bow[1]][ALPHABET[number]] == []:
                         tracker = False
                 if tracker == True:
-                    result.append(aft)
+                    result.append(stern)
             else:
-                for number in range(sternletternum + 1, aftletternum + 1):
-                    print([ALPHABET[number], stern[1]])
-                    if not board[stern[1]][ALPHABET[number]] == []:
+                for number in range(bowletternum + 1, sternletternum + 1):
+                    if not board[bow[1]][ALPHABET[number]] == []:
                         tracker = False
                 if tracker == True:
-                    result.append(aft)
+                    result.append(stern)
         else:
             tracker = True
-            if stern[1] > aft[1]:
-                for number in range(aft[1] + 1, stern[1] + 1):
-                    print([stern[0], number])
-                    if not board[stern[1]][stern[0]] == []:
+            if bow[1] > stern[1]:
+                for number in range(stern[1], bow[1]):
+                    if not board[number][bow[0]] == []:
                         tracker = False
                 if tracker == True:
-                    result.append(aft)
+                    result.append(stern)
             else:
-                for number in range(stern[1] + 1, aft[1] + 1):
-                    print([stern[0], number])
-                    if not board[stern[1]][stern[0]] == []:
+                for number in range(bow[1] + 1, stern[1] + 1):
+                    if not board[number][bow[0]] == []:
                         tracker = False
                 if tracker == True:
-                    result.append(aft)
+                    result.append(stern)
     return result
 
 def suggest_placement(boat, board, number_of_columns, number_of_rows):
@@ -131,9 +128,9 @@ def suggest_placement(boat, board, number_of_columns, number_of_rows):
                     if not False in option:
                         result.append(option)
                 if not result == []:
-                    result = suggestionverifier([letter, number], result, player_board)
+                    result = suggestionverifier([letter, number], result, board)
                 if result == []:
-                    string = get_input('Please enter a valid and empty location ')
+                    string = get_input('That boat won\'t fit there. Please enter a valid and empty location ')
                     letternumber = ALPHABET.index(string[0])
                     letter = string[0]
                     number = string[1]
@@ -154,12 +151,12 @@ def take_suggestion(boat, board, number_of_columns, number_of_rows):
     for option in options:
         string = string + option[0] + str(option[1]) + " "
     tracker = False
-    choice = get_input(f"Where would you like to put this {boat}'s stern? {string}")
+    choice = get_input(f"Where would you like to position this {boat}'s stern? {string}")
     while tracker == False:
         if choice in options:
             tracker = True
         else:
-            choice = get_input(f"Please choose one of these two options: {string}")
+            choice = get_input(f"Impossible, admiral. Please choose one of these two options: {string}")
     return [bow, choice]
 
 def place_boat(boat, board, number_of_columns, number_of_rows, boat_tag):
@@ -201,6 +198,13 @@ def boats_and_tags(boats):
                 result.append([key, f"{tag}{number + 1}"])
     return result
 
+def set_hitpoints(boats, tags):
+    result = []
+    for tag in tags:
+        for number in range(boats[tag[0]]["size"]):
+            result.append(tag[1])
+    return result
+
 def create_board(board, number_of_rows, number_of_columns):
     for i in range(number_of_rows):
         line = {}
@@ -231,25 +235,207 @@ def play():
         print('You managed to miss the ocean, try again with a letter'
               'between A and J and a digit between 0 and 9')
 
-
-def turn_display(board):
+def turn_display(player_radar, player_display):
     clear()
-    print(pandas.DataFrame(board))
+    print(pandas.DataFrame(player_radar), "              Radar")
+    print('------------------------------------------------------')
+    print(pandas.DataFrame(player_display), "              Your fleet\n\n")
+
+def mid_display(player_radar, player_display):
+    print(pandas.DataFrame(player_radar), "              Radar")
+    print('------------------------------------------------------')
+    print(pandas.DataFrame(player_display), "              Your fleet\n\n")
 
 def quick_display(board):
     print(pandas.DataFrame(board))
 
+def computer_choice(number_of_columns, number_of_rows):
+    number = random.randint(1, number_of_columns)
+    letternumber = random.randint(1, number_of_rows)
+    return [ALPHABET[letternumber - 1], number]
+
 sample_board = {1: {'A': [], 'B': [], 'C': [], 'D': ['c1'], 'E': ['c1'], 'F': ['c1'], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 2: {'A': ['c2'], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 3: {'A': ['c2'], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': ['b'], 'J': []}, 4: {'A': ['c2'], 'B': [], 'C': ['p1'], 'D': [], 'E': [], 'F': ['p2'], 'G': ['p2'], 'H': [], 'I': ['b'], 'J': []}, 5: {'A': [], 'B': [], 'C': ['p1'], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': ['p3'], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 8: {'A': [], 'B': ['p3'], 'C': [], 'D': [], 'E': [], 'F': ['s'], 'G': ['s'], 'H': ['s'], 'I': [], 'J': []}, 9: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 10: {'A': [], 'B': ['a'], 'C': ['a'], 'D': ['a'], 'E': ['a'], 'F': ['a'], 'G': [], 'H': [], 'I': [], 'J': []}}
-player_board = create_board(player_board, number_of_rows, number_of_columns)
+
+if FAST == True:
+    player_board = {1: {'A': [], 'B': [], 'C': [], 'D': [], 'E': [], 'F': [], 'G': 'b', 'H': 'b', 'I': 'b', 'J': 'b'}, 2: {'A': [], 'B': 'c2', 'C': 'p2', 'D': 'p2', 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 3: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 4: {'A': [], 'B': 'c2', 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': 's', 'H': 's', 'I': 's', 'J': []}, 5: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 6: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 7: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': 'c1', 'I': 'c1', 'J': 'c1'}, 8: {'A': [], 'B': [], 'C': [], 'D': [], 'E': 'a', 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}, 9: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': 'p3', 'I': 'p3', 'J': []}, 10: {'A': [], 'B': 'p1', 'C': [], 'D': [], 'E': [], 'F': [], 'G': [], 'H': [], 'I': [], 'J': []}}
+    computer_board = sample_board
+else:
+    player_board = create_board(player_board, number_of_rows, number_of_columns)
 #computer_board = create_board(computer_board, number_of_rows, number_of_columns)
-computer_board = sample_board
 player_radar = create_board(player_radar, number_of_rows, number_of_columns)
-player_display = create_board(player_display, number_of_rows, number_of_columns)
+player_display = player_board
 
 boats = define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers)
 tags = boats_and_tags(boats)
+player_hitpoints = (set_hitpoints(boats, tags))
+player_trace = trace = list(set(player_hitpoints))
+computer_hitpoints = (set_hitpoints(boats, tags))
+computer_trace = trace = list(set(player_hitpoints))
 
+player_moves = []
+computer_moves = []
 
+#quick_display(player_boat_placement(player_board, tags, number_of_columns, number_of_rows))
+
+def computer_hitpoint_checker(computer_hitpoints, tags, computer_trace):
+    for boat in trace:
+        if not boat in computer_hitpoints:
+            computer_trace.remove(boat)
+            for tag in tags:
+                if boat == tag[1]:
+                    print(f"We've sunk their {tag[0]}!")
+                    return computer_trace
+
+def player_hitpoint_checker(player_hitpoints, tags, player_trace):
+    for boat in player_trace:
+        if not boat in player_hitpoints:
+            player_trace.remove(boat)
+            for tag in tags:
+                if boat == tag[1]:
+                    print(f"The enemy has sunk our {tag[0]}")
+                    return player_trace
+
+def get_input(prompt):
+    string = input(prompt)
+    letter = (re.findall(r'\D', string))[0].upper()
+    number = int(re.findall(r'\d+', string)[0])
+    return [letter, number]
+
+def player_result(computer_board, player_radar, player_answer, computer_hitpoints, player_display):
+    number = player_answer[1]
+    letter = player_answer[0]
+    if computer_board[number][letter] == []:
+        player_radar[number][letter] = 'O'
+        turn_display(player_radar, player_display)
+        print('We missed!')
+    else:
+
+        player_radar[number][letter] = 'X'
+        turn_display(player_radar, player_display)
+        hit = computer_board[number][letter]
+        computer_hitpoints.remove(hit[0])
+        print("It's a hit!")
+    return [player_radar, computer_hitpoints]
+
+def computer_result(player_board, player_radar, computer_answer, player_hitpoints, player_display, tags):
+    clear()
+    number = computer_answer[1]
+    letter = computer_answer[0]
+    if player_board[number][letter] == []:
+        player_display[number][letter] = 'O'
+        print('\nThe enemy missed!\n')
+    else:
+        hit = player_board[number][letter]
+        player_display[number][letter] = "X"
+        player_hitpoints.remove(hit)
+        for tag in tags:
+            if hit == tag[1]:
+                print(f"\nThey've hit our {tag[0]}\n")
+    return [player_display, player_hitpoints]
+
+def computer_move():
+    letter = random.choice('ABCDEFGHIJ')
+    number = random.randint(0,9)
+    return [letter,number]
+
+def validated_player_move(player_radar):
+    valid = False
+    player_answer = get_input('Where should we fire? ')
+    letter = player_answer[0]
+    number = player_answer[1]
+    while valid == False:
+        try:
+            if not player_radar[number][letter] == []:
+                player_answer = get_input('Please enter a valid and location ')
+                letter = player_answer[0]
+                number = player_answer[1]
+            else:
+                return player_answer
+        except (KeyError, IndexError):
+            player_answer = get_input('Please enter a valid location ')
+            letter = player_answer[0]
+            number = player_answer[1]
+
+def validated_computer_move(number_of_columns, number_of_rows, computer_moves):
+    valid = False
+    computer_answer = computer_choice(number_of_columns, number_of_rows)
+    letter = computer_answer[0]
+    number = computer_answer[1]
+    while valid == False:
+        try:
+            if computer_answer in computer_moves:
+                computer_answer = computer_choice(number_of_columns, number_of_rows)
+            else:
+                return computer_answer
+        except (KeyError, IndexError):
+            computer_answer = computer_choice(number_of_columns, number_of_rows)
+
+def touched_boat (board,move):
+    global cruiser_score
+    global battleship_score
+    global submarine_score
+    global carrier_score
+    global patrol_score
+    for boat,case in boats.items():
+        if str(move) in str(case):
+            player_radar[player_answer[1]][player_answer[0]]='X'
+            player_board[computer_answer[1]][computer_answer[0]]='X'
+            if boat=='Cruiser':
+                cruiser_score+=1
+            elif boat=='Battleship':
+                battleship_score+=1
+            elif boat=='Submarine':
+                submarine_score+=1
+            elif boat=='Carrier':
+                carrier_score+=1
+            elif boat=='Patrol_boat':
+                patrol_score+=1
+            return print('Well done you have touched a',boat,'!!!\n')
+
+def sunk_boat(x_score):
+    global player_score
+    global computer_score
+    if cruiser_score == len(boats['Cruiser']) or battleship_score == len(boats['Battleship']) or submarine_score == len(boats['Submarine']) or carrier_score == len(boats['Carrier']) or patrol_score == len(boats['Patrol boat']):
+        x_score+=1
+        return print('Congratulations, you have sunk your first boat !! \n Your score is', x_score)
+    else:
+        return print ('Needs to continue to play to shoot an entire boat ! \n')
+
+def datadisplay(board):
+    df = pandas.DataFrame(data=board)
+    return print(df)
+
+def checker(player_hitpoints, computer_hitpoints):
+    if player_hitpoints == [] or computer_hitpoints == []:
+        return False
+    else:
+        return True
+
+game_on = True
+
+clear()
+while game_on:
+    mid_display(player_radar, player_display)
+    player_answer = validated_player_move(player_radar)
+    player_reslt = player_result(computer_board, player_radar, player_answer, computer_hitpoints, player_display)
+    player_radar = player_reslt[0]
+    computer_hitpoints = player_reslt[1]
+    computer_hitpoint_checker(computer_hitpoints, tags, computer_trace)
+    print('\n ---- it\'s the enemy\'s turn to fire!-----\n ')
+    time.sleep(2)
+    computer_answer = validated_computer_move(number_of_columns, number_of_rows, computer_moves)
+    print(computer_answer)
+    time.sleep(1)
+    #print('Computer plays: ', computer_answer)
+    computer_reslt = computer_result(player_board, player_radar, computer_answer, computer_hitpoints, player_display, tags)
+    player_display = computer_reslt[0]
+    player_hitpoints = computer_reslt[1]
+    game_on = checker(player_hitpoints, computer_hitpoints)
+
+if player_hitpoints == []:
+    print("we've lost, admiral!")
+else:
+    print("We've annihilated the enemy, admiral!")
 
 
 #print(pandas.DataFrame(sample_board))
