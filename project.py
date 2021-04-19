@@ -429,19 +429,41 @@ def validated_player_move(player_radar):
             letter = player_answer[0]
             number = player_answer[1]
 
-def validated_computer_move(number_of_columns, number_of_rows, computer_moves):
+def wisemove(hit, computer_moves, computer_board):
+    hit = computer_moves[-1]
+    hitletter = hit[0]
+    hitletternum = ALPHABET.index(hit[0])
+    hitnum = hit[1]
+    upletter = [ALPHABET[hitletternum + 1], hitnum]
+    downletter = [ALPHABET[hitletternum - 1], hitnum]
+    upnumber = [hitletter, hitnum + 1]
+    downnumber = [hitletter, hitnum - 1]
+    results = []
+    for result in [upletter, downnumber, downletter, upnumber]:
+        if not result in computer_moves:
+            if computer_board[result[1]][result[0]] == [] or computer_board[result[1]][result[0]] == [r".*"]:
+                results.append(result)
+    return results
+
+
+def validated_computer_move(number_of_columns, number_of_rows, computer_moves, lasthit, computer_board):
     valid = False
-    computer_answer = computer_choice(number_of_columns, number_of_rows)
-    letter = computer_answer[0]
-    number = computer_answer[1]
     while valid == False:
         try:
-            if computer_answer in computer_moves:
+            if lasthit == True and counter < 10:
+                counter = 0
+                computer_answer = sample(wisemove(computer_moves, computer_board))
+                counter += 1
+            else:
                 computer_answer = computer_choice(number_of_columns, number_of_rows)
+                letter = computer_answer[0]
+                number = computer_answer[1]
+            if computer_answer in computer_moves:
+                pass
             else:
                 return computer_answer
         except (KeyError, IndexError):
-            computer_answer = computer_choice(number_of_columns, number_of_rows)
+            pass
 
 def touched_boat (board,move):
     global cruiser_score
@@ -485,9 +507,9 @@ def checker(player_hitpoints, computer_hitpoints):
         return True
 
 game_on = True
-
 clear()
 while game_on:
+    lasthit = False
     mid_display(player_radar, player_display)
     player_answer = validated_player_move(player_radar)
     player_reslt = player_result(computer_board, player_radar, player_answer, computer_hitpoints, player_display)
@@ -496,7 +518,7 @@ while game_on:
     computer_hitpoint_checker(computer_hitpoints, tags, computer_trace)
     print('\n ---- it\'s the enemy\'s turn to fire!-----\n ')
     time.sleep(2)
-    computer_answer = validated_computer_move(number_of_columns, number_of_rows, computer_moves)
+    computer_answer = validated_computer_move(number_of_columns, number_of_rows, computer_moves, lasthit, computer_board)
     print(computer_answer)
     time.sleep(1)
     #print('Computer plays: ', computer_answer)
