@@ -32,7 +32,7 @@ def clear():
     else:
         _ = system('clear')
 
-FAST = False
+FAST = True
 ALPHABET = list(string.ascii_uppercase)
 
 def define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruisers, number_of_battleships, number_of_carriers):
@@ -397,6 +397,9 @@ def player_result(computer_board, player_radar, player_answer, computer_hitpoint
 
 def computer_result(player_board, player_radar, computer_answer, player_hitpoints, player_display, tags):
     clear()
+    labels = []
+    for tag in tags:
+        labels.append(tag[1])
     number = computer_answer[1]
     letter = computer_answer[0]
     if player_board[number][letter] == []:
@@ -405,11 +408,12 @@ def computer_result(player_board, player_radar, computer_answer, player_hitpoint
         hit = False
     else:
         hit = player_board[number][letter]
+        impact = ''.join([letter.lower(), str(number)])
         player_display[number][letter] = "X"
         player_hitpoints.remove(hit)
         hit = True
-        for tag in tags:
-            if hit == tag[1]:
+        for tag in labels:
+            if impact == label:
                 print(f"\nThey've hit our {tag[0]}\n")
     return [player_display, player_hitpoints, hit]
 
@@ -516,6 +520,8 @@ def checker(player_hitpoints, computer_hitpoints):
 game_on = True
 clear()
 hit_tally = []
+
+print(tags)
 
 while game_on:
     zoned_in = False
