@@ -387,10 +387,11 @@ def player_result(computer_board, player_radar, player_answer, computer_hitpoint
         turn_display(player_radar, player_display)
         print('We missed!')
     else:
-
         player_radar[number][letter] = 'X'
         turn_display(player_radar, player_display)
         hit = computer_board[number][letter]
+        print(hit)
+        print(computer_hitpoints)
         computer_hitpoints.remove(hit[0])
         print("It's a hit!")
     return [player_radar, computer_hitpoints]
@@ -408,12 +409,11 @@ def computer_result(player_board, player_radar, computer_answer, player_hitpoint
         hit = False
     else:
         hit = player_board[number][letter]
-        impact = ''.join([letter.lower(), str(number)])
         player_display[number][letter] = "X"
-        player_hitpoints.remove(hit)
+        player_hitpoints.remove(hit[0])
         hit = True
-        for tag in labels:
-            if impact == label:
+        for tag in tas:
+            if tag[1] == hit:
                 print(f"\nThey've hit our {tag[0]}\n")
     return [player_display, player_hitpoints, hit]
 
@@ -520,8 +520,6 @@ def checker(player_hitpoints, computer_hitpoints):
 game_on = True
 clear()
 hit_tally = []
-
-print(tags)
 
 while game_on:
     zoned_in = False
