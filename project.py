@@ -44,9 +44,15 @@ def define_boats(number_of_patrol_boats, number_of_submarines, number_of_cruiser
     return boats
 
 def get_input(prompt):
-    string = input(prompt)
-    letter = (re.findall(r'\D', string))[0].upper()
-    number = int(re.findall(r'\d+', string)[0])
+    looper = True
+    while looper == True:
+        try:
+            looper = False
+            string = input(prompt)
+            letter = (re.findall(r'\D', string))[0].upper()
+            number = int(re.findall(r'\d+', string)[0])
+        except IndexError:
+            looper = True
     return [letter, number]
 
 def letterbynumber(number, testnumber, number_of_rows):
@@ -105,13 +111,13 @@ def suggestionverifier(bow, sternlist, board):
 
 def suggest_placement(boat, board, number_of_columns, number_of_rows):
     length = boats[boat]['size'] - 1
-    point = get_input(f'Where would you like to put this {boat}\'s bow? ')
-    letternumber = ALPHABET.index(point[0])
-    letter = point[0]
-    number = point[1]
     looper = True
     options = []
     while looper == True:
+        point = get_input(f'Where would you like to put this {boat}\'s bow? ')
+        letternumber = ALPHABET.index(point[0])
+        letter = point[0]
+        number = point[1]
         try:
             if not board[number][letter] == []:
                 string = get_input('Please enter a valid and empty location ')
@@ -534,7 +540,7 @@ while game_on:
         zoned_in = True
     try:
         if hit_tally[-1] == False and hit_tally[-2] == False and hit_tally[-3] == False:
-        zoned_in == False
+            zoned_in == False
     except IndexError:
         pass
     game_on = checker(player_hitpoints, computer_hitpoints)
